@@ -7,6 +7,7 @@ import { useQuery } from '@apollo/react-hooks';
 import { QUERY_THOUGHTS, QUERY_ME_BASIC } from '../utils/queries';
 import Auth from '../utils/auth';
 import FriendList from '../components/FriendList';
+import ThoughtForm from '../components/ThoughtForm';
 
 // import the ThoughtList
 import ThoughtList from '../components/ThoughtList';
@@ -33,6 +34,11 @@ const Home = () => {
   return (
     <main>
       <div className='flex-row justify-space-between'>
+        {loggedIn && (
+          <div className='col-12 mb-3'>
+            <ThoughtForm />
+          </div>
+        )}
         {/* conditionally render the logged in status to modify the page layout */}
         <div className={`col-12 mb-3 ${loggedIn && 'col-lg-8'}`}>
           {/* use a ternary operator to conditionally render the <ThoughtList> conponent */}
