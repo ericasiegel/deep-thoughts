@@ -1,32 +1,55 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
+// the Redirect component allows us to redirect the user to another route within the application
+import { Redirect, useParams } from 'react-router-dom';
+import Auth from '../utils/auth';
 
 import ThoughtList from '../components/ThoughtList';
 
 import { useQuery } from '@apollo/react-hooks';
-import { QUERY_USER } from '../utils/queries';
+import { QUERY_USER, QUERY_ME } from '../utils/queries';
 
 import FriendList from '../components/FriendList';
 
 const Profile = () => {
   // the useParams hook retrieves the username from the URL, which is then passed to the useQuery Hook
   const { username: userParam } = useParams();
-
-  const { loading, data } = useQuery(QUERY_USER, {
+  // check the value of our parameter and conditionally run a query based on the result
+  // if there is a value in userParam that we got from the URL bar, we'll use that value to run the QUERY_USER query. 
+  // if there is no value in userParam it will execute QUERY_ME instead
+  const { loading, data } = useQuery(userParam ? QUERY_USER : QUERY_ME, {
     variables: { username: userParam }
   });
 
-  const user = data?.user || {};
+  // when we run QUERY_ME, the response will return with our data in the me property; 
+  // but if it runs QUERY_USER instead, the response will return with our data in the user property
+  // if there is no data in either, it will return empty objects
+  const user = data?.me || data?.user || {};
+
+  // redirect to personal profile page if username is the logged-in user's
+  if (
+    Auth.loggedIn() &&
+    Auth.getProfile().data.username === userParam
+  ) {
+    return <Redirect to="/profile" />;
+  }
 
   if (loading) {
     return <div>Loading...</div>
+  }
+
+  if (!user?.username) {
+    return (
+      <h4>
+        You need to be logged in to see this page, Use the navigation links above to sign up or log in!
+      </h4>
+    )
   }
 
   return (
     <div>
       <div className="flex-row mb-3">
         <h2 className="bg-dark text-secondary p-3 display-inline-block">
-          Viewing {user.username}'s profile.
+          Viewing {userParam ? `${user.username}'s` : 'your'} profile.
         </h2>
       </div>
 

@@ -19,6 +19,16 @@ import Signup from './pages/Signup';
 // establish the connection to the back-end server's /graphql endpoint
 // establish a new connection to the GraphQL server using Apollo
 const client = new ApolloClient({
+  // an HTTP request configuration
+  request: operation => {
+    const token = localStorage.getItem('id_token');
+    // we use .setContext() method to set the HTTP request headers of every request to include the token, whether the request needs it or not.
+    operation.setContext({
+      headers: {
+        authorization: token ? `Bearer ${token}` : ''
+      }
+    });
+  },
   // absolute path to the back end server
   // uri: 'http://localhost:3001/graphql'
   uri: '/graphql'
